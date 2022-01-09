@@ -6,8 +6,12 @@ export default class App extends Component{
         super(props)
     }
     render(){
-        return <HomePage/>
+        return(
+<div className='center'>
+<HomePage/>
+</div>
+        ) 
     }
 }
-const appDiv=document.getElementById("app")
+const appDiv=document.getElementById("root")
 render(<App />,appDiv)
