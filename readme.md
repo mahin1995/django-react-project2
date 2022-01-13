@@ -19,3 +19,8 @@ then go packge.json file add to script
         "dev": "webpack --mode development --watch",
     "build": "webpack --mode production"
 }
+
+
+```
+npm install @material-ui/lab
+```

@@ -3,18 +3,36 @@ import RoomJoinPage from './RoomJoinPage'
 import CreateRoomPage from './CreateRoomPage'
 import {Link} from 'react-router-dom'
 import {ButtonGroup,Button,Grid,Typography} from '@material-ui/core';
+import { Navigate } from "react-router-dom";
+
 import {
     BrowserRouter,
     Routes,
     Route
   } from "react-router-dom";
 import Room from './Room';
-export default class HomePage extends Component {
+function PrivateRoute(props) {
+    return props.roomcode? <Navigate to={`/room/${props.roomcode}`} />:props.children ;
+
+}
+ class HomePage extends Component {
     constructor(props){
         super(props)
+        this.state=({
+          roomCode:null
+        })
+        this.clearRoomCode=this.clearRoomCode.bind(this)
     }
 async componentDidMount(){
-  
+  fetch("/api/user-in-room")
+  .then((response)=>response.json())
+  .then((data)=>{
+    console.log(data)
+    this.setState({
+      roomCode:data.code
+    })
+  })
+
 }
 
     rendeHomePage(){
@@ -34,13 +52,24 @@ async componentDidMount(){
         </Grid>
       )
     }
+clearRoomCode(){
+  this.setState({
+    roomCode:null
+  })
+}
     render() {
         return (
             <BrowserRouter>
             <Routes>
-              <Route path="/" element={this.rendeHomePage()}/>
+              <Route path="/" element={ 
+                <PrivateRoute roomcode={this.state.roomCode}>
+                  {this.rendeHomePage()}
+                </PrivateRoute>
+                } />
+             
+
               <Route path="/join" element={<RoomJoinPage />} />
-              <Route path="/room/:roomCode" element={<Room />} />
+              <Route path="/room/:roomCode" element={<Room leaveRoomCallback={this.clearRoomCode} />} />
                 <Route path="/create" element={<CreateRoomPage />}>
                   {/* <Route path=":teamId" element={<Team />} /> */}
                 </Route>
@@ -51,3 +80,4 @@ async componentDidMount(){
         )
     }
 }
+export default HomePage

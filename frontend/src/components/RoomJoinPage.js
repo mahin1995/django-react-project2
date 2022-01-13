@@ -38,7 +38,7 @@ class RoomJoinPage extends Component {
                     />
                 </Grid>
                 <Grid item xs={12} align="center">
-                    <Button variant="contained" color="secandary" onClick={this.roomButtonPressed} >Enter Room</Button>
+                    <Button variant="contained" color="secandary" onClick={this.roomButtonPressed} >Enter The Room</Button>
                 </Grid>
                 <Grid item xs={12} align="center">
                     <Button variant="contained" color="primary" to='/' component={Link}>Go Back</Button>
