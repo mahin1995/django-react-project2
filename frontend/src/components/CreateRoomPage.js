@@ -10,7 +10,8 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import {Collapse} from "@material-ui/core"
+import { Collapse } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 function withParams(Component) {
   return (props) => <Component {...props} navigate={useNavigate()} />;
 }
@@ -30,8 +31,8 @@ class CreateRoomPage extends Component {
     this.state = {
       guestCanPause: this.props.guestCanPause,
       votesToSkip: this.props.votesToSkip,
-      successMsg:"",
-      errorMsg:""
+      successMsg: "",
+      errorMsg: "",
     };
     this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
     this.handaleVotesChange = this.handaleVotesChange.bind(this);
@@ -73,37 +74,28 @@ class CreateRoomPage extends Component {
       body: JSON.stringify({
         votes_to_skip: this.state.votesToSkip,
         guest_can_pause: this.state.guestCanPause,
-        code:this.props.roomCode
+        code: this.props.roomCode,
       }),
     };
-    fetch("/api/update-room", reqestOptions)
-      .then((response) => {
-          if(response.ok){
-              this.setState({
-                  successMsg:"Room update successfully"
-                })
-                alert(this.state.successMsg)
-            }else{
-                this.setState({
-                    errorMsg:"Error updating room....."
-                })
-            }
-            // response.json()
-            this.props.updateCallback()
-        })
-        
-    }
-    
-    renderCreateButtons() {
-        console.log(this.state.successMsg)
-        return (
-            <Grid container spaceing={1}>
-        <Grid item xs={12} align="center">
+    fetch("/api/update-room", reqestOptions).then((response) => {
+      if (response.ok) {
+        this.setState({
+          successMsg: "Room update successfully",
+        });
+      } else {
+        this.setState({
+          errorMsg: "Error updating room.....",
+        });
+      }
+      // response.json()
+      this.props.updateCallback();
+    });
+  }
 
-            <Collapse in={this.state.errorMsg!=""||this.state.successMsg!=""}>
-                {this.state.successMsg}
-            </Collapse>
-        </Grid>
+  renderCreateButtons() {
+    console.log(this.state.successMsg);
+    return (
+      <Grid container spaceing={1}>
         <Grid item xs={12} align="center">
           <Button
             color="primary"
@@ -140,6 +132,27 @@ class CreateRoomPage extends Component {
     const title = this.props.update ? "Update Room" : "Create a Room";
     return (
       <Grid container spacing={1}>
+        <Grid item xs={12} align="center">
+          <Collapse
+            in={this.state.errorMsg != "" || this.state.successMsg != ""}
+          >
+            {this.state.successMsg != "" ? (
+              <Alert severity="success" onClose={()=>{
+                  this.setState({
+                      successMsg:""
+                  })
+              }}>{this.state.successMsg}</Alert>
+            ) : (
+              <Alert severity="error" onClose={
+                  ()=>{
+                      this.setState({
+                          errorMsg:""
+                      })
+                  }
+              }>{this.state.errorMsg}</Alert>
+            )}
+          </Collapse>
+        </Grid>
         <Grid items xs={12} align="center">
           <Typography component="h4" variant="h4">
             {title}
@@ -187,7 +200,9 @@ class CreateRoomPage extends Component {
             </FormHelperText>
           </FormControl>
         </Grid>
-        {this.props.update?this.renderUpdateButtons():this.renderCreateButtons()}
+        {this.props.update
+          ? this.renderUpdateButtons()
+          : this.renderCreateButtons()}
       </Grid>
     );
   }
