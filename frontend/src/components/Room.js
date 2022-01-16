@@ -13,7 +13,8 @@ function withParams(Component) {
             votesToSkip:2,
             guestCanPause:false,
             isHost:false,
-            showSettings:false
+            showSettings:false,
+            spotifyAuthenticatd:false
         }
         this.roomCode=this.props.params.roomCode;
         this.navigate=this.props.navigate;
@@ -21,6 +22,7 @@ function withParams(Component) {
         this.renderSettings=this.renderSettings.bind(this)
         this.renderSettingsButton=this.renderSettingsButton.bind(this)
         this.getRoomDetails=this.getRoomDetails.bind(this)
+        this.authenticateSpotify=this.authenticateSpotify.bind(this)
         this.getRoomDetails()
     }
 
@@ -40,6 +42,9 @@ getRoomDetails(){
             guestCanPause:data.guest_can_pause,
             isHost:data.is_host
         })
+        if(this.state.isHost){
+            this.authenticateSpotify()
+        }
     })
     this.leaveButtonPressed=this.leaveButtonPressed.bind(this)
     this.updateShowSettings=this.updateShowSettings.bind(this)
@@ -47,6 +52,17 @@ getRoomDetails(){
 // componentDidMount(){
 //     this.getRoomDetails()
 // }
+authenticateSpotify(){
+    fetch('/spotify/is-authenticated').then((response)=>response.json()).then((data)=>{
+        this.setState({spotifyAuthenticatd:data.status})
+        if(!data.status){
+            fetch("/spotify/get-auth-url").then((response)=>response.json()).then((data)=>{
+                window.location.replace(data.url)
+            })
+        }
+    })
+}
+
 leaveButtonPressed(){
         const requestOptions={
             method:'POST',
@@ -63,6 +79,7 @@ updateShowSettings(value){
         showSettings:value
     })
 }
+
 
 renderSettings(){
  return(   <Grid container spcing={1}>

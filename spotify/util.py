@@ -1,9 +1,15 @@
 from cmath import exp
+import imp
 from .credentials import REDIRECT_URI,CLIENT_SECRET,CLIENT_ID
 from django.http import response
 from .models import SpotifyToken
 from django.utils import timezone
 from datetime import timedelta
+from requests import post,put,get
+import requests
+
+BASE_URL="https://api.spotify.com/v1/me/"
+
 
 def get_user_tokens(session_id):
     user_tokens=SpotifyToken.objects.filter(user=session_id)
@@ -14,7 +20,7 @@ def get_user_tokens(session_id):
 
 def update_token_or_create_user_tokens(session_id,access_token,token_type,expires_in,refresh_token):
     tokens=get_user_tokens(session_id)
-    expires_in=timezone.now()+timedelta(seconds=expires_in)
+    expires_in=timezone.now()+timedelta(seconds=3600)
     if tokens:
         tokens.access_token=access_token
         tokens.refresh_token=refresh_token
@@ -48,4 +54,22 @@ def refresh_spotify_token(session_id):
     expires_in=response.get('expires_in')
     update_token_or_create_user_tokens(session_id,access_token,token_type,expires_in,refresh_token)
     # error=response.get('error')
+
+import json
+def execute_spotify_api_request(session_id,endpoint,post_=False,put_=False):
+    tokens=get_user_tokens(session_id)
+    headers={'Content-type':'application/json','Authorization':"Bearer "+tokens.access_token}
     
+    if post_:
+        post(BASE_URL+endpoint,headers=headers)
+    if put_:
+        put(BASE_URL+endpoint,headers=headers)
+    # response=get(BASE_URL+endpoint,{},headers=headers)
+    url=BASE_URL+endpoint
+    response =requests.get(url, headers = headers)
+    # print(response.json())
+    # print(json.loads(response))
+    try:
+        return response
+    except Exception as e:
+        return {'Error':"Issue with request...."+str(e)}
